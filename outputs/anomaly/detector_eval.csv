@@ -1,0 +1,6 @@
+detector,alerts,pct_of_accounts,default_rate_flagged,default_rate_rest,lift,share_of_all_defaults_caught,flagged_but_performing_FP_proxy,missed_defaults_FN_proxy
+Own-history DPD spike,320,2.2%,19.4%,16.0%,1.21x,2.6%,258,2302
+Peer-segment outlier,442,3.0%,39.4%,15.4%,2.56x,7.4%,268,2190
+"Divergence: clean bureau, 3+ missed with us",48,0.3%,27.1%,16.1%,1.69x,0.5%,35,2351
+"Divergence: bureau stress, clean with us",168,1.1%,12.5%,16.1%,0.77x,0.9%,147,2343
+ANY detector,935,6.4%,27.7%,15.3%,1.81x,11.0%,676,2105

@@ -1,0 +1,12 @@
+detector,threshold,alerts,default_rate,recall
+peer,top 10%,1472,0.296,0.184
+peer,top 7%,1031,0.332,0.145
+peer,top 5%,737,0.354,0.11
+peer,top 3%,442,0.394,0.074
+peer,top 2%,296,0.416,0.052
+peer,top 1%,150,0.507,0.032
+spike,DPD>=30,645,0.191,0.052
+spike,DPD>=45,479,0.19,0.038
+spike,DPD>=60,320,0.194,0.026
+spike,DPD>=75,156,0.179,0.012
+spike,DPD>=85,49,0.163,0.003

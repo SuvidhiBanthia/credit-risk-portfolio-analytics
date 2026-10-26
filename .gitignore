@@ -1,0 +1,18 @@
+# environments and dependencies
+.venv/
+node_modules/
+__pycache__/
+*.pyc
+
+# OS / editor / Office lock files
+.DS_Store
+Thumbs.db
+~$*
+.vscode/
+.idea/
+
+# runtime output of the dashboard (human review log)
+outputs/anomaly/review_log.csv
+
+# raw download archive (the extracted tables live in data/raw/)
+*.zip

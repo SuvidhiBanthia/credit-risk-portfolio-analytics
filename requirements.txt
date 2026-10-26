@@ -1,0 +1,16 @@
+# Python 3.12. Pinned to the versions the project was built and verified with.
+pandas==3.1.0
+numpy==2.5.4
+pyarrow==26.0.0
+scipy==1.18.1
+scikit-learn==1.9.1
+xgboost==3.4.1
+shap==0.54.1
+joblib==1.6.0
+matplotlib==3.11.2
+plotly==7.1.0
+streamlit==1.66.1
+python-docx==1.2.0
+pymupdf==2.0
+# only needed to re-export diagram PNGs and dashboard screenshots for the deck
+playwright==1.64.1

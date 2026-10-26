@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Credit Risk Portfolio Analytics — Architecture Diagrams</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+  :root { --primary:#0172b6; --primary-dark:#015a91; --primary-light:#e8f4fc; --teal:#39cfa5; --teal-dark:#2ba882; --slate:#2c3e50; --surface:#f7f9fb;
+    --text:#334155; --text-muted:#64748b; --border:#e2e8f0; --opus:#7c3aed; --sonnet:#2563eb; --openai:#10a37f; --mongo:#00684a; --zilliz:#00a1ea;
+    --cognito:#dd6b20; --red:#dc3545; --yellow:#f59e0b; --green:#22c55e; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Urbanist',-apple-system,sans-serif; background:var(--surface); color:var(--text); line-height:1.6; }
+  .page-header { background:linear-gradient(135deg,var(--slate) 0%,var(--primary-dark) 100%); color:#fff; padding:48px 0 40px; text-align:center; }
+  .page-header h1 { font-size:2.2rem; font-weight:800; letter-spacing:-0.5px; }
+  .page-header p { color:rgba(255,255,255,0.7); font-size:1rem; margin-top:6px; }
+  .page-header .badge { display:inline-block; background:var(--teal); color:#fff; padding:4px 14px; border-radius:20px; font-size:0.75rem; font-weight:700; margin-top:12px; letter-spacing:0.5px; }
+  .container { max-width:1200px; margin:0 auto; padding:0 24px; }
+  .toc { background:#fff; border-radius:12px; padding:28px 32px; margin:-24px auto 40px; max-width:700px; box-shadow:0 4px 24px rgba(0,0,0,0.06); position:relative; z-index:2; }
+  .toc h3 { font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:12px; }
+  .toc a { display:block; padding:6px 0; color:var(--primary); text-decoration:none; font-weight:500; font-size:0.95rem; border-bottom:1px solid var(--border); }
+  .toc a:last-child { border-bottom:none; } .toc a:hover { color:var(--teal-dark); }
+  .toc a span { color:var(--text-muted); font-weight:400; margin-right:8px; }
+  .diagram-section { background:#fff; border-radius:16px; padding:40px; margin-bottom:40px; box-shadow:0 2px 16px rgba(0,0,0,0.04); }
+  .diagram-section h2 { font-size:1.4rem; font-weight:700; color:var(--slate); margin-bottom:6px; display:flex; align-items:center; gap:10px; }
+  .diagram-section h2 .num { background:var(--primary); color:#fff; width:32px; height:32px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; font-size:0.85rem; font-weight:700; }
+  .diagram-section .subtitle { color:var(--text-muted); font-size:0.9rem; margin-bottom:28px; }
+  .diagram-wrap { overflow-x:auto; padding:8px 0; } .diagram-wrap svg { display:block; margin:0 auto; max-width:100%; height:auto; }
+  .legend { display:flex; flex-wrap:wrap; gap:16px; margin-top:24px; padding-top:20px; border-top:1px solid var(--border); }
+  .legend-item { display:flex; align-items:center; gap:6px; font-size:0.8rem; color:var(--text-muted); }
+  .legend-dot { width:12px; height:12px; border-radius:3px; }
+  .note-box { background:var(--primary-light); border-left:4px solid var(--primary); padding:14px 18px; border-radius:0 8px 8px 0; margin-top:20px; font-size:0.88rem; color:var(--primary-dark); }
+  .note-box strong { font-weight:700; } code { font-family:'JetBrains Mono',monospace; font-size:0.82em; background:#fff; padding:1px 5px; border-radius:4px; }
+  @media print { .page-header { padding:24px 0; } .diagram-section { break-inside:avoid; box-shadow:none; border:1px solid var(--border); } }
+</style>
+</head>
+<body>
+<div class="page-header"><div class="container">
+  <h1>Credit Risk Portfolio Analytics</h1>
+  <p>Architecture Diagrams</p>
+  <div class="badge">ASSIGNMENT DELIVERABLE &mdash; ARCHITECTURE</div>
+</div></div>
+<div class="container">
+<div class="toc">
+  <h3>Contents</h3>
+  <a href="#d1"><span>01</span> End-to-End Architecture</a>
+  <a href="#d2"><span>02</span> Data Lineage & Join Logic</a>
+  <a href="#d3"><span>03</span> Model Pipeline & Governance</a>
+  <a href="#d4"><span>04</span> AI Feature — Anomaly Detection with Human-in-the-Loop</a>
+  <a href="#d5"><span>05</span> Production Target Architecture (proposed)</a>
+</div>
+<div class="diagram-section" id="d1">
+  <h2><span class="num">1</span> End-to-End Architecture</h2>
+  <p class="subtitle">Ingestion → analytics → model → dashboard with the embedded AI feature, tools at each stage, and governance across all of it.</p>
+  <div class="diagram-wrap">
+<svg viewBox="0 0 1100 466" width="1100" height="466" xmlns="http://www.w3.org/2000/svg" font-family="Urbanist, sans-serif">
+<defs>
+  <marker id="arrowGray" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--text-muted)"/></marker>
+  <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--primary)"/></marker>
+  <marker id="arrowTeal" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--teal-dark)"/></marker>
+  <marker id="arrowRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--red)"/></marker>
+  <marker id="arrowPurple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--opus)"/></marker>
+  <marker id="arrowYellow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--yellow)"/></marker>
+</defs>
+<rect x="10" y="20" width="130" height="340" rx="14" fill="#fff" stroke="var(--border)" stroke-width="1.5"/>
+<rect x="10" y="20" width="130" height="340" rx="14" fill="var(--primary)" opacity="0.04"/>
+<text x="75.0" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-muted)" letter-spacing="0.4">0 · SOURCE DATA</text>
+<text x="75.0" y="57" text-anchor="middle" font-size="9.5" font-weight="500" fill="var(--primary)" >5 CSV tables</text>
+<rect x="176" y="20" width="201" height="340" rx="14" fill="#fff" stroke="var(--primary)" stroke-width="2"/>
+<rect x="176" y="20" width="201" height="340" rx="14" fill="var(--primary)" opacity="0.04"/>
+<text x="276.5" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-muted)" letter-spacing="0.4">1 · INGESTION</text>
+<text x="276.5" y="57" text-anchor="middle" font-size="9.5" font-weight="500" fill="var(--primary)" >Python · pandas</text>
+<rect x="413" y="20" width="201" height="340" rx="14" fill="#fff" stroke="var(--primary)" stroke-width="2"/>
+<rect x="413" y="20" width="201" height="340" rx="14" fill="var(--primary)" opacity="0.04"/>
+<text x="513.5" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-muted)" letter-spacing="0.4">2 · ANALYTICS</text>
+<text x="513.5" y="57" text-anchor="middle" font-size="9.5" font-weight="500" fill="var(--primary)" >pandas · matplotlib</text>
+<rect x="650" y="20" width="201" height="340" rx="14" fill="#fff" stroke="var(--primary)" stroke-width="2"/>
+<rect x="650" y="20" width="201" height="340" rx="14" fill="var(--primary)" opacity="0.04"/>
+<text x="750.5" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-muted)" letter-spacing="0.4">3 · MODEL</text>
+<text x="750.5" y="57" text-anchor="middle" font-size="9.5" font-weight="500" fill="var(--primary)" >scikit-learn · XGBoost · SHAP</text>
+<rect x="887" y="20" width="201" height="340" rx="14" fill="#fff" stroke="var(--primary)" stroke-width="2"/>
+<rect x="887" y="20" width="201" height="340" rx="14" fill="var(--primary)" opacity="0.04"/>
+<text x="987.5" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-muted)" letter-spacing="0.4">4 · DASHBOARD</text>
+<text x="987.5" y="57" text-anchor="middle" font-size="9.5" font-weight="500" fill="var(--primary)" >Streamlit · Plotly</text>
+<rect x="22" y="74" width="106" height="38" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2"/>
+<text x="75.0" y="95.0" text-anchor="middle" font-size="9" font-weight="600" fill="var(--text)" >customers</text>
+<rect x="22" y="120" width="106" height="38" rx="8" fill="#fef3c7" stroke="var(--yellow)" stroke-width="1.2"/>
+<text x="75.0" y="141.0" text-anchor="middle" font-size="9" font-weight="600" fill="#92400e" >loan_accounts</text>
+<rect x="22" y="166" width="106" height="38" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2"/>
+<text x="75.0" y="187.0" text-anchor="middle" font-size="9" font-weight="600" fill="var(--text)" >bureau_credit</text>
+<rect x="22" y="212" width="106" height="38" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2"/>
+<text x="75.0" y="233.0" text-anchor="middle" font-size="9" font-weight="600" fill="var(--text)" >repayment_history</text>
+<rect x="22" y="258" width="106" height="38" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2"/>
+<text x="75.0" y="279.0" text-anchor="middle" font-size="9" font-weight="600" fill="var(--text)" >collections_events</text>
+<rect x="186" y="74" width="181" height="66" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="276.5" y="102.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--primary)" >Validate &amp; clean</text>
+<text x="276.5" y="116.0" text-anchor="middle" font-size="8.5" font-weight="400" fill="var(--text-muted)" >keys checked · issues flagged</text>
+<rect x="186" y="150" width="181" height="66" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="276.5" y="178.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--primary)" >Aggregate &amp; join</text>
+<text x="276.5" y="192.0" text-anchor="middle" font-size="8.5" font-weight="400" fill="var(--text-muted)" >one row per loan account, no fan-out</text>
+<rect x="186" y="226" width="181" height="66" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="276.5" y="254.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--primary)" >Data-quality report</text>
+<text x="276.5" y="268.0" text-anchor="middle" font-size="8.5" font-weight="400" fill="var(--text-muted)" >every issue: count + treatment</text>
+<rect x="423" y="74" width="181" height="66" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="513.5" y="102.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--primary)" >Profile &amp; cross-cuts</text>
+<text x="513.5" y="116.0" text-anchor="middle" font-size="8.5" font-weight="400" fill="var(--text-muted)" >5 dimensions · cross-cuts</text>
+<rect x="423" y="150" width="181" height="66" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="513.5" y="178.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--primary)" >5 insights + so-what</text>
+<text x="513.5" y="192.0" text-anchor="middle" font-size="8.5" font-weight="400" fill="var(--text-muted)" >with 95% confidence intervals</text>
+<rect x="423" y="226" width="181" height="66" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="513.5" y="254.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--primary)" >Auto-generated narrative</text>
+<text x="513.5" y="268.0" text-anchor="middle" font-size="8.5" font-weight="400" fill="var(--text-muted)" >numbers computed, never typed</text>
+<rect x="660" y="74" width="181" height="66" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="750.5" y="102.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--primary)" >66 features · grouped split</text>
+<text x="750.5" y="116.0" text-anchor="middle" font-size="8.5" font-weight="400" fill="var(--text-muted)" >no customer in both train and test</text>
+<rect x="660" y="150" width="181" height="66" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="750.5" y="171.25" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--primary)" >Logistic regression + XGBoost</text>
+<text x="750.5" y="184.75" text-anchor="middle" font-size="8.5" font-weight="400" fill="var(--text-muted)" >AUC · KS · Gini</text>
+<text x="750.5" y="199.25" text-anchor="middle" font-size="8.5" font-weight="700" fill="var(--primary)" >XGB test: 0.68 · 0.28 · 0.37</text>
+<rect x="660" y="226" width="181" height="66" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="750.5" y="254.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--primary)" >SHAP + out-of-fold PD</text>
+<text x="750.5" y="268.0" text-anchor="middle" font-size="8.5" font-weight="400" fill="var(--text-muted)" >an explained score for every account</text>
+<rect x="897" y="74" width="181" height="66" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="987.5" y="102.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--primary)" >Portfolio view</text>
+<text x="987.5" y="116.0" text-anchor="middle" font-size="8.5" font-weight="400" fill="var(--text-muted)" >risk bands · exposure · trends</text>
+<rect x="897" y="150" width="181" height="66" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="987.5" y="178.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--primary)" >Account view</text>
+<text x="987.5" y="192.0" text-anchor="middle" font-size="8.5" font-weight="400" fill="var(--text-muted)" >PD · SHAP drivers · 12-month history</text>
+<rect x="897" y="226" width="181" height="66" rx="8" fill="#fef3c7" stroke="var(--yellow)" stroke-width="2"/>
+<text x="987.5" y="254.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="#92400e" >AI feature · Anomaly watch</text>
+<text x="987.5" y="268.0" text-anchor="middle" font-size="8.5" font-weight="400" fill="var(--text-muted)" >3 detectors · analyst review</text>
+<rect x="22" y="308" width="106" height="40" rx="8" fill="#e3f8f1" stroke="var(--teal-dark)" stroke-width="1.2"/>
+<text x="75.0" y="323.35" text-anchor="middle" font-size="10" font-weight="600" fill="var(--teal-dark)" >Raw files</text>
+<text x="75.0" y="336.35" text-anchor="middle" font-size="8.3" font-weight="400" fill="var(--text-muted)" >data/raw/</text>
+<rect x="186" y="308" width="181" height="40" rx="8" fill="#e3f8f1" stroke="var(--teal-dark)" stroke-width="1.2"/>
+<text x="276.5" y="323.35" text-anchor="middle" font-size="10" font-weight="600" fill="var(--teal-dark)" >analytics_dataset.parquet</text>
+<text x="276.5" y="336.35" text-anchor="middle" font-size="8.3" font-weight="400" fill="var(--text-muted)" >14,685 × 84</text>
+<rect x="423" y="308" width="181" height="40" rx="8" fill="#e3f8f1" stroke="var(--teal-dark)" stroke-width="1.2"/>
+<text x="513.5" y="323.35" text-anchor="middle" font-size="10" font-weight="600" fill="var(--teal-dark)" >insights.md + 6 charts</text>
+<text x="513.5" y="336.35" text-anchor="middle" font-size="8.3" font-weight="400" fill="var(--text-muted)" >docs/ · outputs/</text>
+<rect x="660" y="308" width="181" height="40" rx="8" fill="#e3f8f1" stroke="var(--teal-dark)" stroke-width="1.2"/>
+<text x="750.5" y="323.35" text-anchor="middle" font-size="10" font-weight="600" fill="var(--teal-dark)" >PD + SHAP per account</text>
+<text x="750.5" y="336.35" text-anchor="middle" font-size="8.3" font-weight="400" fill="var(--text-muted)" >scored_accounts.parquet</text>
+<rect x="897" y="308" width="181" height="40" rx="8" fill="#e3f8f1" stroke="var(--teal-dark)" stroke-width="1.2"/>
+<text x="987.5" y="323.35" text-anchor="middle" font-size="10" font-weight="600" fill="var(--teal-dark)" >Interactive web app</text>
+<text x="987.5" y="336.35" text-anchor="middle" font-size="8.3" font-weight="400" fill="var(--text-muted)" >app/dashboard.py</text>
+<path d="M140,328 L176,328" fill="none" stroke="var(--teal-dark)" stroke-width="2" marker-end="url(#arrowTeal)"/>
+<path d="M377,328 L413,328" fill="none" stroke="var(--teal-dark)" stroke-width="2" marker-end="url(#arrowTeal)"/>
+<path d="M614,328 L650,328" fill="none" stroke="var(--teal-dark)" stroke-width="2" marker-end="url(#arrowTeal)"/>
+<path d="M851,328 L887,328" fill="none" stroke="var(--teal-dark)" stroke-width="2" marker-end="url(#arrowTeal)"/>
+<rect x="10" y="380" width="1080" height="76" rx="14" fill="#fff" stroke="var(--red)" stroke-width="1.5" stroke-dasharray="6,4"/>
+<rect x="10" y="380" width="1080" height="76" rx="14" fill="var(--red)" opacity="0.04"/>
+<text x="550.0" y="402" text-anchor="middle" font-size="11" font-weight="700" fill="var(--red)" letter-spacing="0.4">GOVERNANCE, RISK &amp; COMPLIANCE — applies to every stage</text>
+<rect x="32" y="414" width="196" height="30" rx="8" fill="#fee2e2" stroke="var(--red)" stroke-width="1.2"/>
+<text x="130.0" y="431.5" text-anchor="middle" font-size="10" font-weight="600" fill="#991b1b" >Data-quality notes</text>
+<rect x="242" y="414" width="196" height="30" rx="8" fill="#fee2e2" stroke="var(--red)" stroke-width="1.2"/>
+<text x="340.0" y="431.5" text-anchor="middle" font-size="10" font-weight="600" fill="#991b1b" >Assumptions log (37)</text>
+<rect x="452" y="414" width="196" height="30" rx="8" fill="#fee2e2" stroke="var(--red)" stroke-width="1.2"/>
+<text x="550.0" y="431.5" text-anchor="middle" font-size="10" font-weight="600" fill="#991b1b" >Leakage &amp; fairness controls</text>
+<rect x="662" y="414" width="196" height="30" rx="8" fill="#fee2e2" stroke="var(--red)" stroke-width="1.2"/>
+<text x="760.0" y="431.5" text-anchor="middle" font-size="10" font-weight="600" fill="#991b1b" >Model card &amp; monitoring</text>
+<rect x="872" y="414" width="196" height="30" rx="8" fill="#fee2e2" stroke="var(--red)" stroke-width="1.2"/>
+<text x="970.0" y="431.5" text-anchor="middle" font-size="10" font-weight="600" fill="#991b1b" >Audit trail of decisions</text>
+</svg>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--border)"></div>Source data</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--primary)"></div>Pipeline component</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal-dark)"></div>Output artefact</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>AI feature / decision point</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Governance & compliance</div>
+  </div>
+</div>
+<div class="diagram-section" id="d2">
+  <h2><span class="num">2</span> Data Lineage & Join Logic</h2>
+  <p class="subtitle">Five tables, three grains. Every one-to-many table is aggregated to its parent grain <em>before</em> joining, so the output stays at one row per loan account.</p>
+  <div class="diagram-wrap">
+<svg viewBox="0 0 1100 456" width="1100" height="456" xmlns="http://www.w3.org/2000/svg" font-family="Urbanist, sans-serif">
+<defs>
+  <marker id="arrowGray" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--text-muted)"/></marker>
+  <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--primary)"/></marker>
+  <marker id="arrowTeal" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--teal-dark)"/></marker>
+  <marker id="arrowRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--red)"/></marker>
+  <marker id="arrowPurple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--opus)"/></marker>
+  <marker id="arrowYellow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--yellow)"/></marker>
+</defs>
+<text x="110" y="22" text-anchor="middle" font-size="10" font-weight="700" fill="var(--text-muted)" letter-spacing="0.5">SOURCE TABLE</text>
+<text x="385" y="22" text-anchor="middle" font-size="10" font-weight="700" fill="var(--text-muted)" letter-spacing="0.5">TRANSFORM BEFORE JOINING</text>
+<text x="680" y="22" text-anchor="middle" font-size="10" font-weight="700" fill="var(--text-muted)" letter-spacing="0.5">JOIN</text>
+<rect x="10" y="40" width="200" height="56" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2"/>
+<text x="110.0" y="63.599999999999994" text-anchor="middle" font-size="11" font-weight="600" fill="var(--text)" >customers</text>
+<text x="110.0" y="77.6" text-anchor="middle" font-size="8.8" font-weight="400" fill="var(--text-muted)" >10,000 rows</text>
+<path d="M210,68 L250,68" fill="none" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+<rect x="250" y="40" width="270" height="56" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="385.0" y="63.349999999999994" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--primary)" >Clean demographics</text>
+<text x="385.0" y="76.85" text-anchor="middle" font-size="8.8" font-weight="400" fill="var(--text-muted)" >labels fixed · impute + flags</text>
+<path d="M520,68 L840,68" fill="none" stroke="var(--primary)" stroke-width="1.8" marker-end="url(#arrowBlue)"/>
+<text x="680" y="61" text-anchor="middle" font-size="9" font-weight="500" fill="var(--primary)" >m:1 on customer_id</text>
+<rect x="10" y="112" width="200" height="56" rx="8" fill="#fef3c7" stroke="var(--yellow)" stroke-width="1.2"/>
+<text x="110.0" y="135.6" text-anchor="middle" font-size="11" font-weight="600" fill="#92400e" >loan_accounts</text>
+<text x="110.0" y="149.6" text-anchor="middle" font-size="8.8" font-weight="400" fill="var(--text-muted)" >14,685 rows · target_default</text>
+<path d="M210,140 L250,140" fill="none" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+<rect x="250" y="112" width="270" height="56" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="385.0" y="135.35" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--primary)" >Base table</text>
+<text x="385.0" y="148.85" text-anchor="middle" font-size="8.8" font-weight="400" fill="var(--text-muted)" >grain = one loan account</text>
+<path d="M520,140 L840,140" fill="none" stroke="var(--yellow)" stroke-width="1.8" marker-end="url(#arrowYellow)"/>
+<text x="680" y="133" text-anchor="middle" font-size="9" font-weight="500" fill="#92400e" >base (left-join anchor)</text>
+<rect x="10" y="184" width="200" height="56" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2"/>
+<text x="110.0" y="207.6" text-anchor="middle" font-size="11" font-weight="600" fill="var(--text)" >bureau_credit</text>
+<text x="110.0" y="221.6" text-anchor="middle" font-size="8.8" font-weight="400" fill="var(--text-muted)" >22,979 external lines</text>
+<path d="M210,212 L250,212" fill="none" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+<rect x="250" y="184" width="270" height="56" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="385.0" y="207.35" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--primary)" >Aggregate → 1 row / customer</text>
+<text x="385.0" y="220.85" text-anchor="middle" font-size="8.8" font-weight="400" fill="var(--text-muted)" >19 bureau features</text>
+<path d="M520,212 L840,212" fill="none" stroke="var(--primary)" stroke-width="1.8" marker-end="url(#arrowBlue)"/>
+<text x="680" y="205" text-anchor="middle" font-size="9" font-weight="500" fill="var(--primary)" >m:1 on customer_id</text>
+<rect x="10" y="256" width="200" height="56" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2"/>
+<text x="110.0" y="279.6" text-anchor="middle" font-size="11" font-weight="600" fill="var(--text)" >repayment_history</text>
+<text x="110.0" y="293.6" text-anchor="middle" font-size="8.8" font-weight="400" fill="var(--text-muted)" >176,220 rows · 12 per account</text>
+<path d="M210,284 L250,284" fill="none" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+<rect x="250" y="256" width="270" height="56" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="385.0" y="279.35" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--primary)" >Aggregate → 1 row / account</text>
+<text x="385.0" y="292.85" text-anchor="middle" font-size="8.8" font-weight="400" fill="var(--text-muted)" >14 repayment + 6 cross-account features</text>
+<path d="M520,284 L840,284" fill="none" stroke="var(--primary)" stroke-width="1.8" marker-end="url(#arrowBlue)"/>
+<text x="680" y="277" text-anchor="middle" font-size="9" font-weight="500" fill="var(--primary)" >1:1 on account_id</text>
+<rect x="10" y="328" width="200" height="56" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2"/>
+<text x="110.0" y="351.6" text-anchor="middle" font-size="11" font-weight="600" fill="var(--text)" >collections_events</text>
+<text x="110.0" y="365.6" text-anchor="middle" font-size="8.8" font-weight="400" fill="var(--text-muted)" >8,635 events</text>
+<path d="M210,356 L250,356" fill="none" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+<rect x="250" y="328" width="270" height="56" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="385.0" y="351.35" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--primary)" >Aggregate → 1 row / account</text>
+<text x="385.0" y="364.85" text-anchor="middle" font-size="8.8" font-weight="400" fill="var(--text-muted)" >5 columns · follows delinquency</text>
+<path d="M520,356 L840,356" fill="none" stroke="var(--red)" stroke-width="1.8" stroke-dasharray="6,3" marker-end="url(#arrowRed)"/>
+<text x="680" y="349" text-anchor="middle" font-size="9" font-weight="500" fill="var(--red)" >1:1 · analytics only, not in model</text>
+<rect x="840" y="30" width="250" height="356" rx="14" fill="#fff" stroke="var(--primary)" stroke-width="2"/>
+<rect x="840" y="30" width="250" height="356" rx="14" fill="var(--primary)" opacity="0.05"/>
+<text x="965" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="var(--primary)" >analytics_dataset</text>
+<text x="965" y="72" text-anchor="middle" font-size="9" font-weight="500" fill="var(--text-muted)" >14,685 rows × 84 columns · 1 row per account</text>
+<rect x="856" y="88" width="218" height="46" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="965.0" y="113.75" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--primary)" >66 model features</text>
+<rect x="856" y="144" width="218" height="46" rx="8" fill="#fef3c7" stroke="var(--yellow)" stroke-width="1.2"/>
+<text x="965.0" y="169.75" text-anchor="middle" font-size="10.5" font-weight="600" fill="#92400e" >1 target · target_default</text>
+<rect x="856" y="200" width="218" height="46" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2"/>
+<text x="965.0" y="225.75" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--text)" >2 ids</text>
+<rect x="856" y="256" width="218" height="46" rx="8" fill="#fee2e2" stroke="var(--red)" stroke-width="1.2"/>
+<text x="965.0" y="281.75" text-anchor="middle" font-size="10.5" font-weight="600" fill="#991b1b" >2 excluded: gender, marital status</text>
+<rect x="856" y="312" width="218" height="46" rx="8" fill="#fee2e2" stroke="var(--red)" stroke-width="1.2"/>
+<text x="965.0" y="337.75" text-anchor="middle" font-size="10.5" font-weight="600" fill="#991b1b" >13 analytics only</text>
+<rect x="10" y="406" width="1080" height="40" rx="8" fill="#e3f8f1" stroke="var(--teal-dark)" stroke-width="1.2"/>
+<text x="550.0" y="428.75" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--teal-dark)" >17 integrity checks pass: unique keys · no orphan IDs · 12 months per account · no fan-out after joins</text>
+</svg>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>Base table</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--primary)"></div>Transform / join</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Excluded from model (leakage)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal-dark)"></div>Integrity check</div>
+  </div>
+  <div class="note-box"><strong>Why account grain:</strong> <code>target_default</code> lives on <code>loan_accounts</code>. Collections events follow delinquency, so they feed analytics only, never the model.</div>
+</div>
+<div class="diagram-section" id="d3">
+  <h2><span class="num">3</span> Model Pipeline & Governance</h2>
+  <p class="subtitle">Customer-grouped split, tuned on train only, evaluated once on the held-out set; out-of-fold scores feed the dashboard.</p>
+  <div class="diagram-wrap">
+<svg viewBox="0 0 1100 421" width="1100" height="421" xmlns="http://www.w3.org/2000/svg" font-family="Urbanist, sans-serif">
+<defs>
+  <marker id="arrowGray" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--text-muted)"/></marker>
+  <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--primary)"/></marker>
+  <marker id="arrowTeal" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--teal-dark)"/></marker>
+  <marker id="arrowRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--red)"/></marker>
+  <marker id="arrowPurple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--opus)"/></marker>
+  <marker id="arrowYellow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--yellow)"/></marker>
+</defs>
+<rect x="10" y="40" width="180" height="90" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="100.0" y="74.5" text-anchor="middle" font-size="11" font-weight="600" fill="var(--primary)" >66 engineered features</text>
+<text x="100.0" y="88.5" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >application 27 · bureau 19 ·</text>
+<text x="100.0" y="100.5" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >repayment 14 · cross-account 6</text>
+<rect x="235" y="40" width="180" height="90" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="325.0" y="74.5" text-anchor="middle" font-size="11" font-weight="600" fill="var(--primary)" >Customer-grouped split</text>
+<text x="325.0" y="88.5" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >stratified 80/20 · no customer in</text>
+<text x="325.0" y="100.5" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >both sets · test set touched once</text>
+<rect x="460" y="40" width="180" height="90" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="550.0" y="68.5" text-anchor="middle" font-size="11" font-weight="600" fill="var(--primary)" >Tuning on train only</text>
+<text x="550.0" y="82.5" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >customer-grouped 5-fold CV ·</text>
+<text x="550.0" y="94.5" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >random search (40 XGBoost, 7</text>
+<text x="550.0" y="106.5" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >logistic)</text>
+<rect x="685" y="28" width="180" height="56" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2"/>
+<text x="775.0" y="51.25" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--text)" >Logistic regression</text>
+<text x="775.0" y="64.75" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >baseline · explainable benchmark</text>
+<rect x="685" y="92" width="180" height="56" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="775.0" y="109.25" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--primary)" >XGBoost</text>
+<text x="775.0" y="122.75" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >scoring model · native SHAP ·</text>
+<text x="775.0" y="134.75" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >handles missing</text>
+<rect x="910" y="40" width="180" height="90" rx="8" fill="#e3f8f1" stroke="var(--teal-dark)" stroke-width="1.2"/>
+<text x="1000.0" y="67.0" text-anchor="middle" font-size="11" font-weight="600" fill="var(--teal-dark)" >Held-out evaluation</text>
+<text x="1000.0" y="81.0" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >AUC · Gini · KS · Brier ·</text>
+<text x="1000.0" y="93.0" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >calibration · decile table</text>
+<text x="1000.0" y="108.0" text-anchor="middle" font-size="9" font-weight="700" fill="var(--teal-dark)" >XGB test: 0.68 · 0.37 · 0.28</text>
+<path d="M190,85 L235,85" fill="none" stroke="var(--primary)" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+<path d="M415,85 L460,85" fill="none" stroke="var(--primary)" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+<path d="M640,85 L685,85" fill="none" stroke="var(--primary)" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+<path d="M865,85 L910,85" fill="none" stroke="var(--primary)" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+<rect x="10" y="210" width="180" height="90" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2"/>
+<text x="100.0" y="243.0" text-anchor="middle" font-size="11" font-weight="600" fill="var(--text)" >Ablation study</text>
+<text x="100.0" y="257.0" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >does each feature group add lift?</text>
+<text x="100.0" y="272.0" text-anchor="middle" font-size="9" font-weight="700" fill="var(--text)" >0.65 → 0.66 → 0.68 → 0.68</text>
+<rect x="235" y="210" width="180" height="90" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="325.0" y="238.5" text-anchor="middle" font-size="11" font-weight="600" fill="var(--primary)" >Out-of-fold scoring</text>
+<text x="325.0" y="252.5" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >5-fold, customer-grouped, all</text>
+<text x="325.0" y="264.5" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >14,685 accounts · no account</text>
+<text x="325.0" y="276.5" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >scored by a model that saw it</text>
+<rect x="460" y="210" width="180" height="90" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="550.0" y="238.5" text-anchor="middle" font-size="11" font-weight="600" fill="var(--primary)" >SHAP explanations</text>
+<text x="550.0" y="252.5" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >per-account drivers · one-hot</text>
+<text x="550.0" y="264.5" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >summed per feature · additive</text>
+<text x="550.0" y="276.5" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >check ≈ 5e-7</text>
+<rect x="685" y="210" width="180" height="90" rx="8" fill="#fef3c7" stroke="var(--yellow)" stroke-width="1.2"/>
+<text x="775.0" y="237.0" text-anchor="middle" font-size="11" font-weight="600" fill="#92400e" >Risk bands</text>
+<text x="775.0" y="251.0" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >Low &lt;10% · Medium 10–20% · High</text>
+<text x="775.0" y="263.0" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >20–35% · Very High ≥35%</text>
+<text x="775.0" y="278.0" text-anchor="middle" font-size="9" font-weight="700" fill="#92400e" >observed ≈ predicted per band</text>
+<rect x="910" y="210" width="180" height="90" rx="8" fill="#e3f8f1" stroke="var(--teal-dark)" stroke-width="1.2"/>
+<text x="1000.0" y="243.5" text-anchor="middle" font-size="11" font-weight="600" fill="var(--teal-dark)" >Outputs → dashboard &amp;</text>
+<text x="1000.0" y="257.5" text-anchor="middle" font-size="11" font-weight="600" fill="var(--teal-dark)" >anomaly layer</text>
+<text x="1000.0" y="271.5" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >scored_accounts · shap_values_oof</text>
+<path d="M775,148 L775,178 L325,178 L325,210" fill="none" stroke="var(--primary)" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+<text x="550" y="172" text-anchor="middle" font-size="9" font-weight="500" fill="var(--primary)" >same tuned parameters</text>
+<path d="M415,255 L460,255" fill="none" stroke="var(--primary)" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+<path d="M640,255 L685,255" fill="none" stroke="var(--primary)" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+<path d="M865,255 L910,255" fill="none" stroke="var(--primary)" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+<path d="M190,255 L235,255" fill="none" stroke="var(--text-muted)" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowGray)"/>
+<rect x="10" y="335" width="1080" height="76" rx="14" fill="#fff" stroke="var(--red)" stroke-width="1.5" stroke-dasharray="6,4"/>
+<rect x="10" y="335" width="1080" height="76" rx="14" fill="var(--red)" opacity="0.04"/>
+<text x="550.0" y="357" text-anchor="middle" font-size="11" font-weight="700" fill="var(--red)" letter-spacing="0.4">GOVERNANCE &amp; MONITORING</text>
+<rect x="32" y="369" width="196" height="30" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2"/>
+<text x="130.0" y="386.5" text-anchor="middle" font-size="10" font-weight="600" fill="var(--text)" >Versioned model artefacts</text>
+<rect x="242" y="369" width="196" height="30" rx="8" fill="#fee2e2" stroke="var(--red)" stroke-width="1.2"/>
+<text x="340.0" y="386.5" text-anchor="middle" font-size="10" font-weight="600" fill="#991b1b" >Leakage &amp; fairness tests</text>
+<rect x="452" y="369" width="196" height="30" rx="8" fill="#fef3c7" stroke="var(--yellow)" stroke-width="1.2"/>
+<text x="550.0" y="386.5" text-anchor="middle" font-size="10" font-weight="600" fill="#92400e" >Two scoring points (0.66 / 0.68)</text>
+<rect x="662" y="369" width="196" height="30" rx="8" fill="#fee2e2" stroke="var(--red)" stroke-width="1.2"/>
+<text x="760.0" y="386.5" text-anchor="middle" font-size="10" font-weight="600" fill="#991b1b" >Monitoring: PSI · CSI · AUC</text>
+<rect x="872" y="369" width="196" height="30" rx="8" fill="#fee2e2" stroke="var(--red)" stroke-width="1.2"/>
+<text x="970.0" y="386.5" text-anchor="middle" font-size="10" font-weight="600" fill="#991b1b" >Retrain: 6 months or PSI &gt; 0.25</text>
+</svg>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--primary)"></div>Model step</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>Decision / design choice</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal-dark)"></div>Result / output</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Compliance & monitoring</div>
+  </div>
+  <div class="note-box"><strong>Logistic regression and XGBoost are statistically tied</strong> on this data (AUC 0.689 vs 0.684). XGBoost is the scoring model for native SHAP and missing-value handling; logistic regression is the explainable benchmark.</div>
+</div>
+<div class="diagram-section" id="d4">
+  <h2><span class="num">4</span> AI Feature — Anomaly Detection with Human-in-the-Loop</h2>
+  <p class="subtitle">Three unsupervised detectors feed a ranked review queue; analyst decisions are logged and retune the thresholds.</p>
+  <div class="diagram-wrap">
+<svg viewBox="0 0 1100 484" width="1100" height="484" xmlns="http://www.w3.org/2000/svg" font-family="Urbanist, sans-serif">
+<defs>
+  <marker id="arrowGray" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--text-muted)"/></marker>
+  <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--primary)"/></marker>
+  <marker id="arrowTeal" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--teal-dark)"/></marker>
+  <marker id="arrowRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--red)"/></marker>
+  <marker id="arrowPurple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--opus)"/></marker>
+  <marker id="arrowYellow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--yellow)"/></marker>
+</defs>
+<rect x="10" y="20" width="190" height="310" rx="14" fill="#fff" stroke="var(--border)" stroke-width="1.5"/>
+<rect x="10" y="20" width="190" height="310" rx="14" fill="var(--primary)" opacity="0.04"/>
+<text x="105.0" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-muted)" letter-spacing="0.4">INPUTS</text>
+<rect x="20" y="56" width="170" height="74" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2"/>
+<text x="105.0" y="88.5" text-anchor="middle" font-size="11" font-weight="600" fill="var(--text)" >Repayment history</text>
+<text x="105.0" y="102.5" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >12 months of DPD</text>
+<rect x="20" y="146" width="170" height="74" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2"/>
+<text x="105.0" y="178.5" text-anchor="middle" font-size="11" font-weight="600" fill="var(--text)" >Bureau aggregates</text>
+<text x="105.0" y="192.5" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >lines · DPD · write-offs</text>
+<rect x="20" y="236" width="170" height="74" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2"/>
+<text x="105.0" y="268.5" text-anchor="middle" font-size="11" font-weight="600" fill="var(--text)" >Affordability &amp; loan type</text>
+<text x="105.0" y="282.5" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >loan and EMI vs income</text>
+<rect x="230" y="20" width="290" height="310" rx="14" fill="#fff" stroke="var(--primary)" stroke-width="2"/>
+<rect x="230" y="20" width="290" height="310" rx="14" fill="var(--primary)" opacity="0.04"/>
+<text x="375.0" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-muted)" letter-spacing="0.4">THREE UNSUPERVISED DETECTORS</text>
+<rect x="240" y="52" width="270" height="80" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="375.0" y="80.0" text-anchor="middle" font-size="11" font-weight="600" fill="var(--primary)" >1 · Own-history spike</text>
+<text x="375.0" y="94.0" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >DPD ≥ 60 after 9 clean months</text>
+<text x="375.0" y="109.0" text-anchor="middle" font-size="9" font-weight="700" fill="var(--primary)" >alerts 2.2% · default 19% vs 16%</text>
+<rect x="240" y="142" width="270" height="80" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="375.0" y="170.0" text-anchor="middle" font-size="11" font-weight="600" fill="var(--primary)" >2 · Peer-segment outlier</text>
+<text x="375.0" y="184.0" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >Isolation Forest vs same loan type · top 3%</text>
+<text x="375.0" y="199.0" text-anchor="middle" font-size="9" font-weight="700" fill="var(--primary)" >alerts 3.0% · default 39% vs 15%</text>
+<rect x="240" y="232" width="270" height="80" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="375.0" y="260.0" text-anchor="middle" font-size="11" font-weight="600" fill="var(--primary)" >3 · Source divergence</text>
+<text x="375.0" y="274.0" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >bureau and our repayment record disagree</text>
+<text x="375.0" y="289.0" text-anchor="middle" font-size="9" font-weight="700" fill="var(--primary)" >alerts 1.5% · informational</text>
+<path d="M200,175 L230,175" fill="none" stroke="var(--text-muted)" stroke-width="2" marker-end="url(#arrowGray)"/>
+<rect x="560" y="125" width="190" height="80" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="655.0" y="153.0" text-anchor="middle" font-size="11" font-weight="600" fill="var(--primary)" >Ranked alert queue</text>
+<text x="655.0" y="167.0" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >severity × exposure</text>
+<text x="655.0" y="182.0" text-anchor="middle" font-size="9" font-weight="700" fill="var(--primary)" >≈ 6% of accounts</text>
+<path d="M520,165 L560,165" fill="none" stroke="var(--primary)" stroke-width="2" marker-end="url(#arrowBlue)"/>
+<rect x="790" y="20" width="300" height="218" rx="14" fill="#fffbeb" stroke="var(--yellow)" stroke-width="2"/>
+<text x="940" y="42" text-anchor="middle" font-size="10.5" font-weight="700" fill="#92400e" letter-spacing="0.3">ANALYST REVIEW — HUMAN-IN-THE-LOOP</text>
+<rect x="802" y="54" width="276" height="58" rx="8" fill="#ffffff" stroke="var(--border)" stroke-width="1.2"/>
+<text x="940.0" y="78.5" text-anchor="middle" font-size="11" font-weight="600" fill="var(--slate)" >Evidence panel</text>
+<text x="940.0" y="92.5" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >why flagged · DPD timeline · peers · PD</text>
+<rect x="802" y="122" width="135" height="38" rx="8" fill="#e3f8f1" stroke="var(--teal-dark)" stroke-width="1.2"/>
+<text x="869.5" y="143.25" text-anchor="middle" font-size="9.5" font-weight="600" fill="var(--teal-dark)" >Confirm concern</text>
+<rect x="943" y="122" width="135" height="38" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2"/>
+<text x="1010.5" y="143.25" text-anchor="middle" font-size="9.5" font-weight="600" fill="var(--text)" >Dismiss — false positive</text>
+<rect x="802" y="166" width="135" height="38" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2"/>
+<text x="869.5" y="187.25" text-anchor="middle" font-size="9.5" font-weight="600" fill="var(--text)" >Need more information</text>
+<rect x="943" y="166" width="135" height="38" rx="8" fill="#e3f8f1" stroke="var(--teal-dark)" stroke-width="1.2"/>
+<text x="1010.5" y="181.0" text-anchor="middle" font-size="9.5" font-weight="600" fill="var(--teal-dark)" >Escalate to early-</text>
+<text x="1010.5" y="193.5" text-anchor="middle" font-size="9.5" font-weight="600" fill="var(--teal-dark)" >warning</text>
+<text x="940" y="228" text-anchor="middle" font-size="9" font-weight="500" fill="#92400e" >every decision needs a reason code + note</text>
+<path d="M750,165 L790,165" fill="none" stroke="var(--primary)" stroke-width="2" marker-end="url(#arrowBlue)"/>
+<rect x="790" y="270" width="300" height="56" rx="8" fill="#e3f8f1" stroke="var(--teal-dark)" stroke-width="1.2"/>
+<text x="940.0" y="293.5" text-anchor="middle" font-size="11" font-weight="600" fill="var(--teal-dark)" >Outcomes</text>
+<text x="940.0" y="307.5" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >Confirm / Escalate → early-warning task</text>
+<path d="M940,238 L940,270" fill="none" stroke="var(--teal-dark)" stroke-width="1.5" marker-end="url(#arrowTeal)"/>
+<rect x="560" y="262" width="190" height="64" rx="8" fill="#fee2e2" stroke="var(--red)" stroke-width="1.2"/>
+<text x="655.0" y="289.5" text-anchor="middle" font-size="11" font-weight="600" fill="#991b1b" >Audit log</text>
+<text x="655.0" y="303.5" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >decision · reason · thresholds</text>
+<path d="M790,226 L655,226 L655,262" fill="none" stroke="var(--red)" stroke-width="1.5" marker-end="url(#arrowRed)"/>
+<rect x="230" y="362" width="290" height="52" rx="8" fill="#f3e8ff" stroke="var(--opus)" stroke-width="1.2"/>
+<text x="375.0" y="383.5" text-anchor="middle" font-size="11" font-weight="600" fill="var(--opus)" >Threshold review</text>
+<text x="375.0" y="397.5" text-anchor="middle" font-size="9" font-weight="400" fill="var(--text-muted)" >&gt; 70% dismissed → model owner tightens</text>
+<path d="M655,326 L655,388 L520,388" fill="none" stroke="var(--opus)" stroke-width="1.5" marker-end="url(#arrowPurple)"/>
+<path d="M375,362 L375,332" fill="none" stroke="var(--opus)" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowPurple)"/>
+<text x="383" y="351" text-anchor="start" font-size="9" font-weight="500" fill="var(--opus)" >re-tune thresholds</text>
+<rect x="10" y="438" width="1080" height="36" rx="8" fill="#fee2e2" stroke="var(--red)" stroke-width="1.2"/>
+<text x="550.0" y="458.75" text-anchor="middle" font-size="10.5" font-weight="600" fill="#991b1b" >Guardrail: an alert never changes a score, declines credit or contacts a customer. It only creates a review task.</text>
+</svg>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--primary)"></div>Detector / queue</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>Human review</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--teal-dark)"></div>Outcome</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Audit & guardrail</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--opus)"></div>Feedback loop</div>
+  </div>
+  <div class="note-box"><strong>Trigger:</strong> spike ≥ 60 days after a clean-ish baseline · top 3% of a loan type by Isolation Forest · bureau/repayment disagreement. Default is used only to evaluate the flags, never to build them.</div>
+</div>
+<div class="diagram-section" id="d5">
+  <h2><span class="num">5</span> Production Target Architecture (proposed)</h2>
+  <p class="subtitle">What this prototype would become inside a bank. Solid blue = built in this project; dashed = what the bank's IT / data team must provide.</p>
+  <div class="diagram-wrap">
+<svg viewBox="0 0 1100 456" width="1100" height="456" xmlns="http://www.w3.org/2000/svg" font-family="Urbanist, sans-serif">
+<defs>
+  <marker id="arrowGray" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--text-muted)"/></marker>
+  <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--primary)"/></marker>
+  <marker id="arrowTeal" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--teal-dark)"/></marker>
+  <marker id="arrowRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--red)"/></marker>
+  <marker id="arrowPurple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--opus)"/></marker>
+  <marker id="arrowYellow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--yellow)"/></marker>
+</defs>
+<rect x="10" y="20" width="150" height="330" rx="14" fill="#fff" stroke="var(--border)" stroke-width="1.5"/>
+<rect x="10" y="20" width="150" height="330" rx="14" fill="var(--primary)" opacity="0.04"/>
+<text x="85.0" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-muted)" letter-spacing="0.4">SOURCE SYSTEMS</text>
+<rect x="180" y="20" width="170" height="330" rx="14" fill="#fff" stroke="var(--border)" stroke-width="1.5"/>
+<rect x="180" y="20" width="170" height="330" rx="14" fill="var(--primary)" opacity="0.04"/>
+<text x="265.0" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-muted)" letter-spacing="0.4">INGESTION &amp; QUALITY</text>
+<rect x="370" y="20" width="160" height="330" rx="14" fill="#fff" stroke="var(--border)" stroke-width="1.5"/>
+<rect x="370" y="20" width="160" height="330" rx="14" fill="var(--primary)" opacity="0.04"/>
+<text x="450.0" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-muted)" letter-spacing="0.4">DATA PLATFORM</text>
+<rect x="550" y="20" width="180" height="330" rx="14" fill="#fff" stroke="var(--border)" stroke-width="1.5"/>
+<rect x="550" y="20" width="180" height="330" rx="14" fill="var(--primary)" opacity="0.04"/>
+<text x="640.0" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-muted)" letter-spacing="0.4">MODEL LIFECYCLE</text>
+<rect x="750" y="20" width="170" height="330" rx="14" fill="#fff" stroke="var(--border)" stroke-width="1.5"/>
+<rect x="750" y="20" width="170" height="330" rx="14" fill="var(--primary)" opacity="0.04"/>
+<text x="835.0" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-muted)" letter-spacing="0.4">SERVING</text>
+<rect x="940" y="20" width="150" height="330" rx="14" fill="#fff" stroke="var(--border)" stroke-width="1.5"/>
+<rect x="940" y="20" width="150" height="330" rx="14" fill="var(--primary)" opacity="0.04"/>
+<text x="1015.0" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-muted)" letter-spacing="0.4">CONSUMERS</text>
+<rect x="20" y="50" width="130" height="62" rx="8" fill="#fff4e5" stroke="var(--cognito)" stroke-width="1.2" stroke-dasharray="5,3"/>
+<text x="85.0" y="77.0" text-anchor="middle" font-size="10" font-weight="600" fill="var(--cognito)" >Core banking &amp; loan</text>
+<text x="85.0" y="90.0" text-anchor="middle" font-size="10" font-weight="600" fill="var(--cognito)" >origination</text>
+<rect x="20" y="122" width="130" height="62" rx="8" fill="#fff4e5" stroke="var(--cognito)" stroke-width="1.2" stroke-dasharray="5,3"/>
+<text x="85.0" y="155.5" text-anchor="middle" font-size="10" font-weight="600" fill="var(--cognito)" >Customer master / CRM</text>
+<rect x="20" y="194" width="130" height="62" rx="8" fill="#fff4e5" stroke="var(--cognito)" stroke-width="1.2" stroke-dasharray="5,3"/>
+<text x="85.0" y="221.0" text-anchor="middle" font-size="10" font-weight="600" fill="var(--cognito)" >Credit bureau (point-</text>
+<text x="85.0" y="234.0" text-anchor="middle" font-size="10" font-weight="600" fill="var(--cognito)" >in-time)</text>
+<rect x="20" y="266" width="130" height="62" rx="8" fill="#fff4e5" stroke="var(--cognito)" stroke-width="1.2" stroke-dasharray="5,3"/>
+<text x="85.0" y="293.0" text-anchor="middle" font-size="10" font-weight="600" fill="var(--cognito)" >Collections &amp;</text>
+<text x="85.0" y="306.0" text-anchor="middle" font-size="10" font-weight="600" fill="var(--cognito)" >recoveries</text>
+<rect x="190" y="86" width="150" height="62" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="5,3"/>
+<text x="265.0" y="112.25" text-anchor="middle" font-size="10" font-weight="600" fill="var(--text)" >Batch ETL / CDC</text>
+<text x="265.0" y="125.25" text-anchor="middle" font-size="8.5" font-weight="400" fill="var(--text-muted)" >nightly, incremental</text>
+<rect x="190" y="158" width="150" height="62" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="265.0" y="184.25" text-anchor="middle" font-size="10" font-weight="600" fill="var(--primary)" >Data contracts &amp; DQ gates</text>
+<text x="265.0" y="197.25" text-anchor="middle" font-size="8.5" font-weight="400" fill="var(--text-muted)" >prototype: src/ingest.py</text>
+<rect x="190" y="230" width="150" height="62" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="5,3"/>
+<text x="265.0" y="257.0" text-anchor="middle" font-size="10" font-weight="600" fill="var(--text)" >PII masking &amp; access</text>
+<text x="265.0" y="270.0" text-anchor="middle" font-size="10" font-weight="600" fill="var(--text)" >control</text>
+<rect x="380" y="122" width="140" height="62" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="5,3"/>
+<text x="450.0" y="148.25" text-anchor="middle" font-size="10" font-weight="600" fill="var(--text)" >Lake / warehouse</text>
+<text x="450.0" y="161.25" text-anchor="middle" font-size="8.5" font-weight="400" fill="var(--text-muted)" >versioned snapshots</text>
+<rect x="380" y="194" width="140" height="62" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="5,3"/>
+<text x="450.0" y="220.25" text-anchor="middle" font-size="10" font-weight="600" fill="var(--text)" >Feature store</text>
+<text x="450.0" y="233.25" text-anchor="middle" font-size="8.5" font-weight="400" fill="var(--text-muted)" >point-in-time features</text>
+<rect x="560" y="86" width="160" height="62" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="640.0" y="112.25" text-anchor="middle" font-size="10" font-weight="600" fill="var(--primary)" >Training pipeline</text>
+<text x="640.0" y="125.25" text-anchor="middle" font-size="8.5" font-weight="400" fill="var(--text-muted)" >prototype: src/model.py</text>
+<rect x="560" y="158" width="160" height="62" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="5,3"/>
+<text x="640.0" y="184.25" text-anchor="middle" font-size="10" font-weight="600" fill="var(--text)" >Registry &amp; versioning</text>
+<text x="640.0" y="197.25" text-anchor="middle" font-size="8.5" font-weight="400" fill="var(--text-muted)" >data + params + report</text>
+<rect x="560" y="230" width="160" height="62" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="5,3"/>
+<text x="640.0" y="249.75" text-anchor="middle" font-size="10" font-weight="600" fill="var(--text)" >Validation · champion /</text>
+<text x="640.0" y="262.75" text-anchor="middle" font-size="10" font-weight="600" fill="var(--text)" >challenger</text>
+<text x="640.0" y="275.75" text-anchor="middle" font-size="8.5" font-weight="400" fill="var(--text-muted)" >sign-off before promotion</text>
+<rect x="760" y="86" width="150" height="62" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="5,3"/>
+<text x="835.0" y="112.25" text-anchor="middle" font-size="10" font-weight="600" fill="var(--text)" >Batch scoring + API</text>
+<text x="835.0" y="125.25" text-anchor="middle" font-size="8.5" font-weight="400" fill="var(--text-muted)" >PD + reasons per account</text>
+<rect x="760" y="158" width="150" height="62" rx="8" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="1.2"/>
+<text x="835.0" y="184.25" text-anchor="middle" font-size="10" font-weight="600" fill="var(--primary)" >Risk dashboard</text>
+<text x="835.0" y="197.25" text-anchor="middle" font-size="8.5" font-weight="400" fill="var(--text-muted)" >prototype: Streamlit</text>
+<rect x="760" y="230" width="150" height="62" rx="8" fill="#fef3c7" stroke="var(--yellow)" stroke-width="1.2"/>
+<text x="835.0" y="249.75" text-anchor="middle" font-size="10" font-weight="600" fill="#92400e" >Anomaly watch + case</text>
+<text x="835.0" y="262.75" text-anchor="middle" font-size="10" font-weight="600" fill="#92400e" >management</text>
+<text x="835.0" y="275.75" text-anchor="middle" font-size="8.5" font-weight="400" fill="var(--text-muted)" >prototype: review queue</text>
+<rect x="950" y="50" width="130" height="62" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="5,3"/>
+<text x="1015.0" y="83.5" text-anchor="middle" font-size="10" font-weight="600" fill="var(--text)" >Credit risk / CRO</text>
+<rect x="950" y="122" width="130" height="62" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="5,3"/>
+<text x="1015.0" y="149.0" text-anchor="middle" font-size="10" font-weight="600" fill="var(--text)" >Collections early-</text>
+<text x="1015.0" y="162.0" text-anchor="middle" font-size="10" font-weight="600" fill="var(--text)" >warning</text>
+<rect x="950" y="194" width="130" height="62" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="5,3"/>
+<text x="1015.0" y="227.5" text-anchor="middle" font-size="10" font-weight="600" fill="var(--text)" >Pricing &amp; limits</text>
+<rect x="950" y="266" width="130" height="62" rx="8" fill="#f1f5f9" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="5,3"/>
+<text x="1015.0" y="293.0" text-anchor="middle" font-size="10" font-weight="600" fill="var(--text)" >Provisioning &amp;</text>
+<text x="1015.0" y="306.0" text-anchor="middle" font-size="10" font-weight="600" fill="var(--text)" >regulatory reporting</text>
+<path d="M160,189 L180,189" fill="none" stroke="var(--text-muted)" stroke-width="2" marker-end="url(#arrowGray)"/>
+<path d="M350,189 L370,189" fill="none" stroke="var(--text-muted)" stroke-width="2" marker-end="url(#arrowGray)"/>
+<path d="M530,189 L550,189" fill="none" stroke="var(--text-muted)" stroke-width="2" marker-end="url(#arrowGray)"/>
+<path d="M730,189 L750,189" fill="none" stroke="var(--text-muted)" stroke-width="2" marker-end="url(#arrowGray)"/>
+<path d="M920,189 L940,189" fill="none" stroke="var(--text-muted)" stroke-width="2" marker-end="url(#arrowGray)"/>
+<rect x="10" y="370" width="1080" height="76" rx="14" fill="#fff" stroke="var(--red)" stroke-width="1.5" stroke-dasharray="6,4"/>
+<rect x="10" y="370" width="1080" height="76" rx="14" fill="var(--red)" opacity="0.04"/>
+<text x="550.0" y="392" text-anchor="middle" font-size="11" font-weight="700" fill="var(--red)" letter-spacing="0.4">CROSS-CUTTING CONTROLS A BANK NEEDS</text>
+<rect x="32" y="404" width="196" height="30" rx="8" fill="#fee2e2" stroke="var(--red)" stroke-width="1.2"/>
+<text x="130.0" y="421.5" text-anchor="middle" font-size="10" font-weight="600" fill="#991b1b" >Drift &amp; performance monitoring</text>
+<rect x="242" y="404" width="196" height="30" rx="8" fill="#fee2e2" stroke="var(--red)" stroke-width="1.2"/>
+<text x="340.0" y="421.5" text-anchor="middle" font-size="10" font-weight="600" fill="#991b1b" >Lineage &amp; audit trail</text>
+<rect x="452" y="404" width="196" height="30" rx="8" fill="#fee2e2" stroke="var(--red)" stroke-width="1.2"/>
+<text x="550.0" y="421.5" text-anchor="middle" font-size="10" font-weight="600" fill="#991b1b" >Security: SSO · role access</text>
+<rect x="662" y="404" width="196" height="30" rx="8" fill="#fee2e2" stroke="var(--red)" stroke-width="1.2"/>
+<text x="760.0" y="421.5" text-anchor="middle" font-size="10" font-weight="600" fill="#991b1b" >Explainability · reason codes</text>
+<rect x="872" y="404" width="196" height="30" rx="8" fill="#fee2e2" stroke="var(--red)" stroke-width="1.2"/>
+<text x="970.0" y="421.5" text-anchor="middle" font-size="10" font-weight="600" fill="#991b1b" >Privacy &amp; retention</text>
+</svg>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--primary)"></div>Built in this prototype</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--cognito)"></div>Bank source systems (needed)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--text-muted)"></div>Proposed component (needed)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Cross-cutting controls</div>
+  </div>
+  <div class="note-box"><strong>Needed from the bank to ship:</strong> (1) the default definition and dated outcomes; (2) point-in-time bureau pulls at application; (3) dated monthly repayments and balances; (4) recovery / LGD data; (5) SSO, role-based access and a case-management API; (6) a compliance ruling on permitted attributes (age) and adverse-action reason mapping.</div>
+</div>
+</div>
+</body>
+</html>

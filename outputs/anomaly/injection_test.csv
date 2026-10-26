@@ -1,0 +1,6 @@
+injected_spike_days,recall_on_injected,natural_alert_rate_untouched_clean_accounts
+30,6%,5.4%
+45,6%,5.4%
+60,100%,5.4%
+75,100%,5.4%
+89,100%,5.4%

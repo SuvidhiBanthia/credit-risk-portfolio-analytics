@@ -1,0 +1,85 @@
+column,role
+account_id,id
+customer_id,id
+loan_type,model_candidate
+loan_purpose,model_candidate
+loan_amount,analytics_only (binned / raw copy of model feature)
+interest_rate_pct,model_candidate
+tenure_months,model_candidate
+origination_date,analytics_only (dates inconsistent / portfolio context)
+disbursal_channel,model_candidate
+collateral_flag,model_candidate
+target_default,target
+interest_rate_missing,model_candidate
+age,model_candidate
+gender,"excluded (protected attribute - fairness-tested, not scored)"
+marital_status,"excluded (protected attribute - fairness-tested, not scored)"
+education_level,model_candidate
+employment_type,model_candidate
+occupation_sector,model_candidate
+years_employed,model_candidate
+annual_income,model_candidate
+region,model_candidate
+city_tier,model_candidate
+num_dependents,model_candidate
+housing_type,model_candidate
+years_at_residence,model_candidate
+customer_since,analytics_only (dates inconsistent / portfolio context)
+years_employed_capped,model_candidate
+years_employed_missing,model_candidate
+years_at_residence_missing,model_candidate
+num_dependents_missing,model_candidate
+bur_n_lines,model_candidate
+bur_n_active,model_candidate
+bur_n_closed,model_candidate
+bur_n_writeoff,model_candidate
+bur_total_sanctioned,model_candidate
+bur_total_outstanding,model_candidate
+bur_max_dpd,model_candidate
+bur_avg_dpd,model_candidate
+bur_n_dpd30,model_candidate
+bur_n_dpd_missing,model_candidate
+bur_pct_fintech,model_candidate
+bur_n_credit_types,model_candidate
+bur_oldest_line_yrs,model_candidate
+bur_newest_line_yrs,model_candidate
+bur_n_opened_24m,model_candidate
+bur_has_writeoff,model_candidate
+bur_utilization,model_candidate
+bur_writeoff_outstanding,model_candidate
+rp_emi,model_candidate
+rp_n_late,model_candidate
+rp_n_missed,model_candidate
+rp_pct_ontime,model_candidate
+rp_max_dpd,model_candidate
+rp_avg_dpd,model_candidate
+rp_dpd_first3,model_candidate
+rp_dpd_last3,model_candidate
+rp_dpd_trend,model_candidate
+rp_max_consec_missed,model_candidate
+rp_max_consec_late_or_missed,model_candidate
+rp_paid_ratio,model_candidate
+rp_shortfall_total,model_candidate
+rp_first_delinq_month,model_candidate
+coll_n_events,"analytics_only (post-delinquency, leaks target)"
+coll_total_recovered,"analytics_only (post-delinquency, leaks target)"
+coll_n_legal_or_wo,"analytics_only (post-delinquency, leaks target)"
+coll_n_before_orig,"analytics_only (post-delinquency, leaks target)"
+has_bureau,model_candidate
+coll_has_event,"analytics_only (post-delinquency, leaks target)"
+cust_n_accounts,model_candidate
+cust_total_exposure,analytics_only (dates inconsistent / portfolio context)
+cust_other_missed,model_candidate
+cust_other_late,model_candidate
+cust_other_maxdpd,model_candidate
+cust_max_missed,model_candidate
+cust_sum_missed,model_candidate
+cust_emi_to_income,model_candidate
+log_loan_amount,model_candidate
+loan_to_income,model_candidate
+emi_to_income,model_candidate
+orig_year,analytics_only (dates inconsistent / portfolio context)
+orig_quarter,analytics_only (dates inconsistent / portfolio context)
+age_band,analytics_only (binned / raw copy of model feature)
+income_band,analytics_only (binned / raw copy of model feature)
+rp_balance_ratio_m12,model_candidate

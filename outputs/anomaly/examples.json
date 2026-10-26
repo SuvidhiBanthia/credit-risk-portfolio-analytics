@@ -1,0 +1,51 @@
+{
+  "false_positive_spike": {
+    "account": "ACC203420",
+    "loan_type": "Personal Loan",
+    "loan_amount": 19517.91,
+    "pd_xgb": 0.06982629001140594,
+    "reasons": "Own history: month 12 DPD 89 days vs worst 0 in months 1-9",
+    "months": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      89
+    ]
+  },
+  "false_positive_peer": {
+    "account": "ACC210151",
+    "loan_type": "Personal Loan",
+    "loan_amount": 1000.0,
+    "pd_xgb": 0.333802193403244,
+    "reasons": "Peer outlier (top 0.0% of Personal Loan): paid / due ratio 0.67 (peer median 1), missed payments 4 (peer median 0), bureau lines 30+ DPD 3 (peer median 0)"
+  },
+  "false_negative": {
+    "account": "ACC203733",
+    "loan_type": "Mortgage",
+    "loan_amount": 288344.02,
+    "pd_xgb": 0.0853738933801651,
+    "months": [
+      0,
+      0,
+      0,
+      0,
+      8,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "late_missed": 1
+  }
+}
